@@ -1,0 +1,113 @@
+@import "compass/css3";
+
+@import "compass";
+
+/* Tab Settings */
+$default-checked-selector : ':checked';
+$default-nested-selectors : null;
+
+$toggle-attribute   : id;
+$title-attribute    : for;
+$content-attribute  : class;
+
+/* Tab Toggle Defaults */
+%gone {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+}
+%hide-tab-toggle { @extend %gone; }
+
+/* Tab Content Defaults */
+%hide-tab-content {
+  @include transition(opacity 300ms);
+  opacity: 0; /* Hide */
+  float: left; /* Isolation */
+  width: 100%; /* Isolation */
+  margin-right: -100%; /* Isolation */
+}
+%show-tab-content {
+  opacity: 1; /* Show */
+  position: relative; /* Bring to top */
+  z-index: 10; /* Bring to top */
+}
+%active-tab-title {
+  background: none;
+  border-bottom-color: rgba(black, 0);
+}
+
+/* Tabs Mixin */
+@mixin tabs(
+  $slugs,
+  $nested: $default-nested-selectors,
+  $checked: $default-checked-selector
+) {
+  $nested-tabs: $nested;
+  $nested-content: $nested;
+  @if length($nested) > 1 {
+    $nested-tabs: nth($nested, 1);
+    $nested-content: nth($nested, 2);
+  }
+
+  @each $slug in $slugs {
+    $toggle   : '[#{$toggle-attribute}*="#{$slug}"]';
+    $title    : '[#{$title-attribute}*="#{$slug}"]';
+    $content  : '[#{$content-attribute}*="#{$slug}"]';
+
+    #{$content} { @extend %hide-tab-content; }
+    #{$toggle} {
+      @extend %hide-tab-toggle;
+      &#{$checked} {
+        & ~ #{$nested-tabs} #{$title} {
+          @extend %active-tab-title !optional;
+        }
+        & ~ #{$nested-content} #{$content} {
+          @extend %show-tab-content;
+        }
+      }
+    }
+  }
+}
+
+/* Creating Tabs */
+.oddbirds {
+  @include tabs(eric carl jonny, ".tabs" ".content");
+}
+
+/* Paint Job */
+* { @include box-sizing(border-box); }
+
+body { 
+  @include adjust-leading-to(1.1);
+  padding: rhythm(1);
+  background: #437691;
+}
+
+.oddbirds {
+  @include box-shadow(rgba(black,.5) 0 0 .5em);
+  width: 40%;
+  max-width: 40em;
+  margin: 0 auto;
+  background: lightblue;
+}
+
+[for] {
+  @include rhythm-borders(1px,.25);
+  float: left;
+  width: percentage(1/3);
+  text-align: center;
+  background: #7ac;
+  ~ [for] { border-left: 0 }
+  &:last-child { float: right; }
+}
+
+.content {
+  @include clearfix;
+  @include rhythm-borders(1px,.5);
+  clear: both;
+  border-top: 0;
+  ul { 
+    list-style: disc; 
+    padding-left: rhythm(1);
+  }
+}
